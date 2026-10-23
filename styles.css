@@ -72,8 +72,9 @@ h1 {
   position: absolute;
   top: 235px;
   right: 0;
+  bottom: 0;
   left: 0;
-  height: 625px;
+  height: auto;
   z-index: 1;
   overflow-x: auto;
   overflow-y: hidden;
@@ -91,7 +92,7 @@ h1 {
   gap: clamp(8px, .75vw, 12px);
   min-width: max-content;
   width: max-content;
-  height: 620px;
+  height: min(620px, calc(100% - 20px));
   margin-inline: auto;
   padding: 0 clamp(20px, 2vw, 30px);
 }
@@ -102,7 +103,7 @@ h1 {
   display: block;
   flex: none;
   width: var(--book-width);
-  height: var(--book-height);
+  height: calc(var(--book-height) * var(--book-height-scale, 1));
   text-decoration: none;
   outline-offset: 1px;
   transform-origin: center bottom;
@@ -332,7 +333,7 @@ h1 {
   .about-link { font-size: 12px; }
   .introduction { top: 58px; }
   h1 { font-size: clamp(38px, 7.5vw, 64px); margin-top: 33px; letter-spacing: -.055em; }
-  .library { top: 230px; height: 625px; }
+  .library { top: 230px; height: auto; }
   .book-track { padding-inline: 18px; }
 }
 @media (max-width: 440px) {
@@ -340,8 +341,20 @@ h1 {
   .site-frame { min-height: max(690px, calc(100svh - 16px)); border-radius: 12px; }
   .introduction { top: 43px; }
   h1 { font-size: 10.1vw; margin-top: 28px; }
-  .library { top: 175px; height: 625px; }
+  .library { top: 175px; height: auto; }
   .library { overscroll-behavior-x: contain; }
+}
+@media (max-height: 900px) {
+  .site-frame { min-height: calc(100svh - (var(--page-gutter) * 2)); }
+  .library { top: 220px; }
+  .book { --book-height-scale: .82; }
+}
+@media (max-height: 760px) {
+  .library { top: 200px; }
+  .book { --book-height-scale: .68; }
+}
+@media (max-width: 440px) and (max-height: 900px) {
+  .library { top: 175px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
