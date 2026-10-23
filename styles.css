@@ -234,6 +234,13 @@ h1 {
 .book--brown .spine-title { top: 14%; text-align: center; font-size: 14px; line-height: 1.15; }
 .book--tangerine .spine-title { top: 42%; }
 .book--sky .spine-title { font-size: 36px; letter-spacing: .22em; }
+.book .chapter-title {
+  top: 14%;
+  left: 50%;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
 .book-front {
   padding: 25px 22px 22px;
   background:
@@ -301,6 +308,21 @@ h1 {
 }
 .cover-picture img { display:block; width: 100%;height:100%;object-fit:cover; }
 .cover-edition { margin: auto 0 2px; font-size: 7px; opacity:.6; letter-spacing:.12em; text-align:center; }
+.site-footer {
+  position: fixed;
+  right: calc(var(--page-gutter) + clamp(16px, 2vw, 28px));
+  bottom: calc(var(--page-gutter) + clamp(14px, 1.6vw, 22px));
+  z-index: 8;
+  padding: 7px 10px 6px;
+  border: 1px solid rgba(26,26,25,.2);
+  border-radius: 999px;
+  background: rgba(239,239,237,.88);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+}
 .sr-only { position:absolute; height:1px;width:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap; }
 @media (max-width: 800px) {
   :root { --page-gutter: 12px; }
