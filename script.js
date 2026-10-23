@@ -1,7 +1,6 @@
 /*
  * 마우스로 책장을 좌우로 드래그할 수 있습니다.
- * 각 책은 <a href="books/book-XX.html"> 링크이므로
- * HTML 페이지를 편집해 내용만 추가하면 됩니다.
+ * 각 책은 내부 전자책 또는 외부 아카이브 페이지로 연결됩니다.
  */
 const shelf = document.querySelector('.library');
 
