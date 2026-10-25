@@ -16,10 +16,12 @@
 - `script.js` : 책장 좌우 드래그/스크롤
 - `books/book-01.html` ~ `books/book-18.html` : 각 장의 Notion 아카이브 페이지
 - `notion-reader.css` : Notion 아카이브 페이지 스타일
+- `reader-tools.js` : 서브페이지 공유, 링크 복사, GitHub 댓글 기능
 
 ## 수정
 
 - **Notion 링크 변경:** 각 `books/book-01.html` 파일의 외부 링크와 `<iframe src>`를 수정합니다.
+- **댓글 관리:** 각 페이지의 댓글은 GitHub Issues에 저장되며 `reader-tools.js`의 Utterances 설정을 사용합니다.
 - **책 링크 변경:** `index.html`의 `<a class="book ..." href="books/book-01.html">` 속성을 수정합니다.
 - **책 색상/높이 변경:** `styles.css`에 있는 `.book--...` 색상과 `index.html`의 `--book-width`, `--book-height` 값을 수정합니다.
 - **제목 변경:** `index.html`의 `<h1>` 내용을 수정합니다.
