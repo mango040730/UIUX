@@ -1,9 +1,12 @@
 (() => {
+  const COMMENTS_API = 'https://script.google.com/macros/s/AKfycbzXJGrr0lXrususrMjIeelGCWAx4r2RgzSiYDeM5QDMI2k8jJxHWG2klgO2WGuvERdBGg/exec';
   const frame = document.querySelector('.notion-frame-wrap');
   if (!frame) return;
 
   const chapterTitle = document.title.split('—')[0].trim();
+  const chapterId = window.location.pathname.match(/(book-\d{2})\.html$/)?.[1];
   const pageUrl = window.location.href.split('#')[0];
+  if (!chapterId) return;
   const community = document.createElement('section');
   community.className = 'reader-community';
   community.setAttribute('aria-labelledby', 'community-title');
@@ -24,7 +27,6 @@
           <h3>댓글 <span data-comment-total>0</span></h3>
           <p>서로의 생각을 존중하며 이야기를 나눠주세요.</p>
         </div>
-        <span class="comments-preview-badge">DESIGN PREVIEW</span>
       </div>
       <form class="comment-form" data-comment-form>
         <label class="comment-field">
@@ -35,16 +37,20 @@
           <span>댓글</span>
           <textarea name="comment" rows="5" maxlength="500" placeholder="읽고 떠오른 생각을 자유롭게 남겨보세요." required></textarea>
         </label>
+        <label class="comment-honeypot" aria-hidden="true">
+          <span>웹사이트</span>
+          <input type="text" name="website" tabindex="-1" autocomplete="off">
+        </label>
         <div class="comment-form-footer">
           <span class="comment-count" data-comment-count>0 / 500</span>
           <button class="comment-submit" type="submit">댓글 남기기</button>
         </div>
-        <p class="comment-form-note">현재는 디자인 확인용입니다. 작성한 댓글은 저장되지 않으며 새로고침하면 사라집니다.</p>
+        <p class="comment-form-note">댓글은 공개되며 운영자의 Google Sheet에 저장됩니다.</p>
         <p class="comment-form-message" aria-live="polite"></p>
       </form>
       <ol class="comment-list" data-comment-list>
         <li class="comment-empty" data-comment-empty>
-          <p>아직 댓글이 없습니다.<br>첫 번째 생각을 남겨보세요.</p>
+          <p>댓글을 불러오는 중입니다.</p>
         </li>
       </ol>
     </div>
@@ -102,12 +108,99 @@
   const commentList = community.querySelector('[data-comment-list]');
   const commentTotal = community.querySelector('[data-comment-total]');
   const formMessage = community.querySelector('.comment-form-message');
+  const submitButton = commentForm.querySelector('.comment-submit');
+
+  const formatCommentDate = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '';
+
+    const today = new Date();
+    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const startOfComment = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const dayDifference = Math.round((startOfToday - startOfComment) / 86400000);
+    if (dayDifference === 0) return '오늘';
+    if (dayDifference === 1) return '어제';
+
+    return new Intl.DateTimeFormat('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(date);
+  };
+
+  const createCommentItem = (comment) => {
+    const item = document.createElement('li');
+    item.className = 'comment-item';
+    item.innerHTML = `
+      <article>
+        <header class="comment-meta">
+          <span class="comment-avatar" aria-hidden="true"></span>
+          <div><strong></strong><time></time></div>
+        </header>
+        <p></p>
+      </article>
+    `;
+    item.querySelector('.comment-avatar').textContent = comment.author.slice(0, 1);
+    item.querySelector('strong').textContent = comment.author;
+    item.querySelector('time').textContent = formatCommentDate(comment.createdAt);
+    item.querySelector('time').dateTime = comment.createdAt;
+    item.querySelector('article > p').textContent = comment.comment;
+    return item;
+  };
+
+  const renderComments = (comments) => {
+    commentList.replaceChildren();
+    commentTotal.textContent = String(comments.length);
+
+    if (!comments.length) {
+      const empty = document.createElement('li');
+      empty.className = 'comment-empty';
+      empty.dataset.commentEmpty = '';
+      empty.innerHTML = '<p>아직 댓글이 없습니다.<br>첫 번째 생각을 남겨보세요.</p>';
+      commentList.appendChild(empty);
+      return;
+    }
+
+    comments.forEach((comment) => commentList.appendChild(createCommentItem(comment)));
+  };
+
+  const loadComments = () => new Promise((resolve, reject) => {
+    const callbackName = `__archiveComments_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const script = document.createElement('script');
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      reject(new Error('댓글 요청 시간이 초과되었습니다.'));
+    }, 10000);
+
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      delete window[callbackName];
+      script.remove();
+    };
+
+    window[callbackName] = (response) => {
+      cleanup();
+      if (!response?.ok || !Array.isArray(response.comments)) {
+        reject(new Error(response?.message || '댓글을 불러오지 못했습니다.'));
+        return;
+      }
+      renderComments(response.comments);
+      resolve(response.comments);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error('댓글 서버에 연결하지 못했습니다.'));
+    };
+    script.src = `${COMMENTS_API}?chapter=${encodeURIComponent(chapterId)}&callback=${encodeURIComponent(callbackName)}&t=${Date.now()}`;
+    document.head.appendChild(script);
+  });
 
   commentText.addEventListener('input', () => {
     commentCount.textContent = `${commentText.value.length} / 500`;
   });
 
-  commentForm.addEventListener('submit', (event) => {
+  commentForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!commentForm.reportValidity()) return;
 
@@ -118,29 +211,36 @@
       return;
     }
 
-    const item = document.createElement('li');
-    item.className = 'comment-item comment-item--preview';
-    item.innerHTML = `
-      <article>
-        <header class="comment-meta">
-          <span class="comment-avatar" aria-hidden="true"></span>
-          <div><strong></strong><time>방금 전 · 미리보기</time></div>
-        </header>
-        <p></p>
-        <button type="button" class="comment-reply" disabled>답글</button>
-      </article>
-    `;
-    item.querySelector('.comment-avatar').textContent = author.slice(0, 1);
-    item.querySelector('strong').textContent = author;
-    item.querySelector('article > p').textContent = comment;
-    community.querySelector('[data-comment-empty]')?.remove();
-    commentList.prepend(item);
-    commentTotal.textContent = String(commentList.children.length);
-    commentForm.reset();
-    commentCount.textContent = '0 / 500';
-    formMessage.textContent = '미리보기 댓글을 추가했습니다. 새로고침하면 사라집니다.';
-    window.setTimeout(() => {
-      formMessage.textContent = '';
-    }, 3200);
+    submitButton.disabled = true;
+    submitButton.textContent = '등록 중…';
+    formMessage.textContent = '';
+
+    try {
+      await fetch(COMMENTS_API, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          chapter: chapterId,
+          author,
+          comment,
+          website: commentForm.elements.website.value,
+        }),
+      });
+      await loadComments();
+      commentForm.reset();
+      commentCount.textContent = '0 / 500';
+      formMessage.textContent = '댓글을 등록했습니다.';
+    } catch (error) {
+      formMessage.textContent = error.message || '댓글을 등록하지 못했습니다. 다시 시도해주세요.';
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = '댓글 남기기';
+    }
+  });
+
+  loadComments().catch((error) => {
+    commentList.innerHTML = '<li class="comment-empty"><p>댓글을 불러오지 못했습니다.<br>잠시 후 다시 시도해주세요.</p></li>';
+    formMessage.textContent = error.message;
   });
 })();
