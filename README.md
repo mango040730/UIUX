@@ -21,7 +21,7 @@
 ## 수정
 
 - **Notion 링크 변경:** 각 `books/book-01.html` 파일의 외부 링크와 `<iframe src>`를 수정합니다.
-- **댓글 관리:** 댓글은 Google Apps Script를 통해 연결된 Google Sheet에 저장됩니다.
+- **댓글 관리:** 댓글은 Google Apps Script를 통해 연결된 Google Sheet의 `Comments` 탭에 저장됩니다. 비밀댓글의 본문은 공개 API에 포함되지 않으며 운영자만 Sheet에서 확인할 수 있습니다.
 - **책 링크 변경:** `index.html`의 `<a class="book ..." href="books/book-01.html">` 속성을 수정합니다.
 - **책 색상/높이 변경:** `styles.css`에 있는 `.book--...` 색상과 `index.html`의 `--book-width`, `--book-height` 값을 수정합니다.
 - **제목 변경:** `index.html`의 `<h1>` 내용을 수정합니다.

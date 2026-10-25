@@ -1,3 +1,4 @@
+const SPREADSHEET_ID = '1aI1Uko21_UvXWSLwBwQhdsphvt0TXTY7NzjEPngfBmI';
 const SHEET_NAME = 'Comments';
 const HEADERS = [
   'id',
@@ -6,6 +7,7 @@ const HEADERS = [
   'comment',
   'createdAt',
   'status',
+  'visibility',
   'deleteTokenHash'
 ];
 
@@ -22,9 +24,10 @@ function doGet(e) {
 
   const sheet = getCommentSheet_();
   const lastRow = sheet.getLastRow();
+  const capabilities = { privateComments: true };
 
   if (lastRow < 2) {
-    return respond_(callback, { ok: true, comments: [] });
+    return respond_(callback, { ok: true, comments: [], capabilities: capabilities });
   }
 
   const rows = sheet
@@ -35,15 +38,23 @@ function doGet(e) {
     .filter(row => row[1] === chapter && row[5] === 'published')
     .reverse()
     .slice(0, 100)
-    .map(row => ({
-      id: row[0],
-      chapter: row[1],
-      author: row[2],
-      comment: row[3],
-      createdAt: row[4]
-    }));
+    .map(row => {
+      const isPrivate = row[6] === 'private';
+      return {
+        id: row[0],
+        chapter: row[1],
+        author: isPrivate ? '비공개' : row[2],
+        comment: isPrivate ? '비밀댓글입니다.' : row[3],
+        createdAt: row[4],
+        private: isPrivate
+      };
+    });
 
-  return respond_(callback, { ok: true, comments });
+  return respond_(callback, {
+    ok: true,
+    comments: comments,
+    capabilities: capabilities
+  });
 }
 
 function doPost(e) {
@@ -70,15 +81,22 @@ function doPost(e) {
 
 function createComment_(params) {
   const chapter = String(params.chapter || '').trim();
-  const id = String(params.id || '').trim();
+  const requestedId = String(params.id || '').trim();
   const deleteToken = String(params.deleteToken || '').trim();
   const author = String(params.author || '').trim();
   const comment = String(params.comment || '').trim();
+  const visibility = String(params.visibility || 'public').trim() === 'private'
+    ? 'private'
+    : 'public';
+  const id = requestedId || Utilities.getUuid();
 
   if (!isValidChapter_(chapter)) {
     return json_({ ok: false, message: '올바르지 않은 장입니다.' });
   }
-  if (!isValidId_(id) || !isValidDeleteToken_(deleteToken)) {
+  if (!isValidId_(id)) {
+    return json_({ ok: false, message: '댓글 정보가 올바르지 않습니다.' });
+  }
+  if (deleteToken && !isValidDeleteToken_(deleteToken)) {
     return json_({ ok: false, message: '댓글 삭제 정보가 올바르지 않습니다.' });
   }
   if (!author || author.length > 24) {
@@ -100,7 +118,8 @@ function createComment_(params) {
     escapeFormula_(comment),
     new Date().toISOString(),
     'published',
-    hashToken_(deleteToken)
+    visibility,
+    deleteToken ? hashToken_(deleteToken) : ''
   ];
   const target = sheet.getRange(sheet.getLastRow() + 1, 1, 1, HEADERS.length);
   target.setNumberFormat('@');
@@ -125,17 +144,17 @@ function deleteComment_(params) {
   }
 
   const row = sheet.getRange(rowNumber, 1, 1, HEADERS.length).getDisplayValues()[0];
-  const tokenMatches = row[6] && row[6] === hashToken_(deleteToken);
+  const tokenMatches = row[7] && row[7] === hashToken_(deleteToken);
   if (row[1] !== chapter || row[5] !== 'published' || !tokenMatches) {
     return json_({ ok: false, message: '댓글 삭제 권한이 없습니다.' });
   }
 
-  // 작성 내용과 삭제 키를 Sheet에서도 제거합니다.
-  sheet.getRange(rowNumber, 3, 1, 5).setValues([[
+  sheet.getRange(rowNumber, 3, 1, 6).setValues([[
     '',
     '',
     new Date().toISOString(),
     'deleted',
+    '',
     ''
   ]]);
 
@@ -143,7 +162,7 @@ function deleteComment_(params) {
 }
 
 function getCommentSheet_() {
-  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
   let sheet = spreadsheet.getSheetByName(SHEET_NAME);
 
   if (!sheet) {

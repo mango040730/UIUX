@@ -41,6 +41,13 @@
           <span>웹사이트</span>
           <input type="text" name="website" tabindex="-1" autocomplete="off">
         </label>
+        <label class="comment-privacy" data-private-option hidden>
+          <input type="checkbox" name="private">
+          <span>
+            <strong>비밀댓글</strong>
+            <small>댓글 내용은 운영자만 볼 수 있어요.</small>
+          </span>
+        </label>
         <div class="comment-form-footer">
           <span class="comment-count" data-comment-count>0 / 500</span>
           <button class="comment-submit" type="submit">댓글 남기기</button>
@@ -109,6 +116,7 @@
   const commentTotal = community.querySelector('[data-comment-total]');
   const formMessage = community.querySelector('.comment-form-message');
   const submitButton = commentForm.querySelector('.comment-submit');
+  const privateOption = commentForm.querySelector('[data-private-option]');
 
   const formatCommentDate = (value) => {
     const date = new Date(value);
@@ -131,11 +139,13 @@
   const createCommentItem = (comment) => {
     const item = document.createElement('li');
     item.className = 'comment-item';
+    if (comment.private) item.classList.add('comment-item--private');
     item.innerHTML = `
       <article>
         <header class="comment-meta">
           <span class="comment-avatar" aria-hidden="true"></span>
           <div><strong></strong><time></time></div>
+          <span class="comment-private-badge" hidden>비밀댓글</span>
         </header>
         <p></p>
       </article>
@@ -145,6 +155,7 @@
     item.querySelector('time').textContent = formatCommentDate(comment.createdAt);
     item.querySelector('time').dateTime = comment.createdAt;
     item.querySelector('article > p').textContent = comment.comment;
+    item.querySelector('.comment-private-badge').hidden = !comment.private;
     return item;
   };
 
@@ -184,6 +195,7 @@
         reject(new Error(response?.message || '댓글을 불러오지 못했습니다.'));
         return;
       }
+      privateOption.hidden = response.capabilities?.privateComments !== true;
       renderComments(response.comments);
       resolve(response.comments);
     };
@@ -206,6 +218,7 @@
 
     const author = commentForm.elements.author.value.trim();
     const comment = commentText.value.trim();
+    const isPrivate = !privateOption.hidden && commentForm.elements.private.checked;
     if (!author || !comment) {
       formMessage.textContent = '이름과 댓글 내용을 입력해주세요.';
       return;
@@ -224,13 +237,16 @@
           chapter: chapterId,
           author,
           comment,
+          visibility: isPrivate ? 'private' : 'public',
           website: commentForm.elements.website.value,
         }),
       });
       await loadComments();
       commentForm.reset();
       commentCount.textContent = '0 / 500';
-      formMessage.textContent = '댓글을 등록했습니다.';
+      formMessage.textContent = isPrivate
+        ? '비밀댓글을 등록했습니다. 내용은 운영자만 확인할 수 있습니다.'
+        : '댓글을 등록했습니다.';
     } catch (error) {
       formMessage.textContent = error.message || '댓글을 등록하지 못했습니다. 다시 시도해주세요.';
     } finally {
