@@ -35,9 +35,13 @@ body.notion-reader {
 
 .reader-header a,
 .reader-comments-toggle {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
   color: inherit;
   font-size: 12px;
   font-weight: 700;
+  line-height: 1;
   letter-spacing: 0.04em;
   text-decoration: none;
 }
@@ -52,7 +56,7 @@ body.notion-reader {
 
 .reader-comments-toggle {
   justify-self: end;
-  padding: 8px 0;
+  padding: 0;
   border: 0;
   background: transparent;
   font-family: inherit;

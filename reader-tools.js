@@ -1,5 +1,5 @@
 (() => {
-  const COMMENTS_API = 'https://script.google.com/macros/s/AKfycbzXJGrr0lXrususrMjIeelGCWAx4r2RgzSiYDeM5QDMI2k8jJxHWG2klgO2WGuvERdBGg/exec';
+  const COMMENTS_API = 'https://script.google.com/macros/s/AKfycbxZUjl-Lr6FRBWtOwYVxaz1Gv0M3jPy5GkNV-6tg_fWazUfYRrXrIKvZocBExLUzSDjcA/exec';
   const frame = document.querySelector('.notion-frame-wrap');
   const commentsOpenButton = document.querySelector('[data-comments-open]');
   if (!frame || !commentsOpenButton) return;
