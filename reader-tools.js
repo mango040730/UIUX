@@ -63,6 +63,8 @@
       </ol>
     </div>
   `;
+  frame.insertAdjacentElement('afterend', community);
+  const readerComments = community.querySelector('.reader-comments');
 
   const overlay = document.createElement('div');
   overlay.className = 'comments-overlay';
@@ -74,23 +76,25 @@
       id="reader-comments-dialog"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="community-title"
+      aria-labelledby="comments-dialog-title"
     >
       <header class="comments-dialog-bar">
-        <span>COMMENTS</span>
+        <span id="comments-dialog-title">COMMENTS</span>
         <button type="button" data-comments-close aria-label="댓글창 닫기">닫기</button>
       </header>
+      <div class="comments-dialog-body" data-comments-dialog-body></div>
     </section>
   `;
   const dialog = overlay.querySelector('.comments-dialog');
+  const dialogBody = overlay.querySelector('[data-comments-dialog-body]');
   const commentsCloseButton = overlay.querySelector('[data-comments-close]');
-  dialog.appendChild(community);
   document.body.appendChild(overlay);
 
   commentsOpenButton.setAttribute('aria-controls', 'reader-comments-dialog');
   commentsOpenButton.setAttribute('aria-expanded', 'false');
 
   const openComments = () => {
+    dialogBody.appendChild(readerComments);
     overlay.hidden = false;
     document.body.classList.add('comments-open');
     commentsOpenButton.setAttribute('aria-expanded', 'true');
@@ -99,6 +103,7 @@
 
   const closeComments = () => {
     overlay.hidden = true;
+    community.appendChild(readerComments);
     document.body.classList.remove('comments-open');
     commentsOpenButton.setAttribute('aria-expanded', 'false');
     commentsOpenButton.focus();
