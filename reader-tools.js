@@ -21,7 +21,7 @@
     <div class="reader-comments">
       <div class="comments-heading">
         <div>
-          <h3>댓글 <span data-comment-total>2</span></h3>
+          <h3>댓글 <span data-comment-total>0</span></h3>
           <p>서로의 생각을 존중하며 이야기를 나눠주세요.</p>
         </div>
         <span class="comments-preview-badge">DESIGN PREVIEW</span>
@@ -43,25 +43,8 @@
         <p class="comment-form-message" aria-live="polite"></p>
       </form>
       <ol class="comment-list" data-comment-list>
-        <li class="comment-item">
-          <article>
-            <header class="comment-meta">
-              <span class="comment-avatar" aria-hidden="true">ㅈ</span>
-              <div><strong>조용한 독자</strong><time datetime="2026-10-25">오늘</time></div>
-            </header>
-            <p>같은 장면을 보고도 서로 다른 감상을 발견할 수 있다는 점이 좋았어요. 다음 장도 천천히 읽어보려 합니다.</p>
-            <button type="button" class="comment-reply" disabled>답글</button>
-          </article>
-        </li>
-        <li class="comment-item">
-          <article>
-            <header class="comment-meta">
-              <span class="comment-avatar comment-avatar--warm" aria-hidden="true">ㅇ</span>
-              <div><strong>오후의 기록</strong><time datetime="2026-10-24">어제</time></div>
-            </header>
-            <p>읽는 동안 오래 머물렀던 문장을 다시 생각하게 되네요. 잘 보고 갑니다.</p>
-            <button type="button" class="comment-reply" disabled>답글</button>
-          </article>
+        <li class="comment-empty" data-comment-empty>
+          <p>아직 댓글이 없습니다.<br>첫 번째 생각을 남겨보세요.</p>
         </li>
       </ol>
     </div>
@@ -150,6 +133,7 @@
     item.querySelector('.comment-avatar').textContent = author.slice(0, 1);
     item.querySelector('strong').textContent = author;
     item.querySelector('article > p').textContent = comment;
+    community.querySelector('[data-comment-empty]')?.remove();
     commentList.prepend(item);
     commentTotal.textContent = String(commentList.children.length);
     commentForm.reset();

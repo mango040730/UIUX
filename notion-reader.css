@@ -324,6 +324,20 @@ body.notion-reader {
   list-style: none;
 }
 
+.comment-empty {
+  padding: 56px 20px;
+  border-top: 1px solid rgba(23, 23, 23, 0.18);
+  border-bottom: 1px solid rgba(23, 23, 23, 0.18);
+  color: rgba(23, 23, 23, 0.45);
+  text-align: center;
+}
+
+.comment-empty p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
 .comment-item {
   padding: 28px 0;
   border-top: 1px solid rgba(23, 23, 23, 0.18);
