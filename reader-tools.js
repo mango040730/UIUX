@@ -1,7 +1,8 @@
 (() => {
   const COMMENTS_API = 'https://script.google.com/macros/s/AKfycbzXJGrr0lXrususrMjIeelGCWAx4r2RgzSiYDeM5QDMI2k8jJxHWG2klgO2WGuvERdBGg/exec';
   const frame = document.querySelector('.notion-frame-wrap');
-  if (!frame) return;
+  const commentsOpenButton = document.querySelector('[data-comments-open]');
+  if (!frame || !commentsOpenButton) return;
 
   const chapterTitle = document.title.split('—')[0].trim();
   const chapterId = window.location.pathname.match(/(book-\d{2})\.html$/)?.[1];
@@ -62,7 +63,74 @@
       </ol>
     </div>
   `;
-  frame.insertAdjacentElement('afterend', community);
+
+  const overlay = document.createElement('div');
+  overlay.className = 'comments-overlay';
+  overlay.dataset.commentsOverlay = '';
+  overlay.hidden = true;
+  overlay.innerHTML = `
+    <section
+      class="comments-dialog"
+      id="reader-comments-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="community-title"
+    >
+      <header class="comments-dialog-bar">
+        <span>COMMENTS</span>
+        <button type="button" data-comments-close aria-label="댓글창 닫기">닫기</button>
+      </header>
+    </section>
+  `;
+  const dialog = overlay.querySelector('.comments-dialog');
+  const commentsCloseButton = overlay.querySelector('[data-comments-close]');
+  dialog.appendChild(community);
+  document.body.appendChild(overlay);
+
+  commentsOpenButton.setAttribute('aria-controls', 'reader-comments-dialog');
+  commentsOpenButton.setAttribute('aria-expanded', 'false');
+
+  const openComments = () => {
+    overlay.hidden = false;
+    document.body.classList.add('comments-open');
+    commentsOpenButton.setAttribute('aria-expanded', 'true');
+    commentsCloseButton.focus();
+  };
+
+  const closeComments = () => {
+    overlay.hidden = true;
+    document.body.classList.remove('comments-open');
+    commentsOpenButton.setAttribute('aria-expanded', 'false');
+    commentsOpenButton.focus();
+  };
+
+  commentsOpenButton.addEventListener('click', openComments);
+  commentsCloseButton.addEventListener('click', closeComments);
+  overlay.addEventListener('click', (event) => {
+    if (event.target === overlay) closeComments();
+  });
+  overlay.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeComments();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+
+    const focusable = [...dialog.querySelectorAll(
+      'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )].filter(element => !element.hidden && element.offsetParent !== null);
+    if (!focusable.length) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
 
   const status = community.querySelector('.community-status');
   const setStatus = (message) => {
