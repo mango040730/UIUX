@@ -164,14 +164,16 @@ body.notion-reader {
 
 .comments-heading {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
   margin-bottom: 28px;
 }
 
 .comments-heading h3,
-.comments-heading p {
+.comments-heading p,
+.comment-form-note,
+.comment-form-message {
   margin: 0;
 }
 
@@ -179,17 +181,215 @@ body.notion-reader {
   font-size: 20px;
 }
 
+.comments-heading h3 span {
+  margin-left: 4px;
+  color: rgba(23, 23, 23, 0.45);
+  font-size: 13px;
+  font-weight: 500;
+}
+
 .comments-heading p {
+  margin-top: 8px;
   color: rgba(23, 23, 23, 0.56);
+  font-size: 13px;
+}
+
+.comments-preview-badge {
+  padding: 6px 9px;
+  border: 1px solid rgba(23, 23, 23, 0.28);
+  border-radius: 999px;
+  color: rgba(23, 23, 23, 0.65);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.comment-form {
+  padding: clamp(20px, 3.5vw, 34px);
+  border: 1px solid rgba(23, 23, 23, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.comment-field {
+  display: block;
+}
+
+.comment-field + .comment-field {
+  margin-top: 20px;
+}
+
+.comment-field > span {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.comment-field input,
+.comment-field textarea {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(23, 23, 23, 0.28);
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: #171717;
+  font: inherit;
+  font-size: 14px;
+}
+
+.comment-field input {
+  height: 42px;
+}
+
+.comment-field textarea {
+  min-height: 116px;
+  padding: 12px 0;
+  line-height: 1.7;
+  resize: vertical;
+}
+
+.comment-field input::placeholder,
+.comment-field textarea::placeholder {
+  color: rgba(23, 23, 23, 0.38);
+}
+
+.comment-field input:focus,
+.comment-field textarea:focus {
+  border-bottom-color: #171717;
+}
+
+.comment-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.comment-count {
+  color: rgba(23, 23, 23, 0.5);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.comment-submit {
+  min-height: 42px;
+  padding: 0 20px;
+  border: 1px solid #171717;
+  border-radius: 999px;
+  background: #171717;
+  color: #fff;
+  font: inherit;
   font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-.comments-thread {
-  min-height: 160px;
+.comment-submit:hover,
+.comment-submit:focus-visible {
+  background: transparent;
+  color: #171717;
 }
 
-.comments-thread .utterances {
-  max-width: none;
+.comment-submit:focus-visible {
+  outline: 2px solid #171717;
+  outline-offset: 3px;
+}
+
+.comment-form-note,
+.comment-form-message {
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.comment-form-note {
+  margin-top: 18px;
+  color: rgba(23, 23, 23, 0.48);
+}
+
+.comment-form-message {
+  min-height: 17px;
+  margin-top: 8px;
+  color: #315f40;
+  font-weight: 700;
+}
+
+.comment-list {
+  margin: 42px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comment-item {
+  padding: 28px 0;
+  border-top: 1px solid rgba(23, 23, 23, 0.18);
+}
+
+.comment-item--preview {
+  animation: comment-arrive 0.35s ease-out both;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.comment-avatar {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border-radius: 50%;
+  background: #243d34;
+  color: #f4f2ed;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.comment-avatar--warm {
+  background: #9e5d43;
+}
+
+.comment-meta strong,
+.comment-meta time {
+  display: block;
+}
+
+.comment-meta strong {
+  font-size: 13px;
+}
+
+.comment-meta time {
+  margin-top: 4px;
+  color: rgba(23, 23, 23, 0.48);
+  font-size: 10px;
+}
+
+.comment-item article > p {
+  margin: 18px 0 0 50px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.comment-reply {
+  margin: 14px 0 0 50px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgba(23, 23, 23, 0.45);
+  font: inherit;
+  font-size: 11px;
+}
+
+@keyframes comment-arrive {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 680px) {
@@ -232,10 +432,26 @@ body.notion-reader {
   }
 
   .comments-heading {
-    display: block;
+    gap: 12px;
   }
 
-  .comments-heading p {
-    margin-top: 8px;
+  .comment-form {
+    padding: 20px;
+    border-radius: 14px;
+  }
+
+  .comment-form-footer {
+    justify-content: space-between;
+  }
+
+  .comment-item article > p,
+  .comment-reply {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comment-item--preview {
+    animation: none;
   }
 }

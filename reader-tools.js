@@ -20,10 +20,50 @@
     </div>
     <div class="reader-comments">
       <div class="comments-heading">
-        <h3>댓글</h3>
-        <p>댓글 작성에는 GitHub 로그인이 필요합니다.</p>
+        <div>
+          <h3>댓글 <span data-comment-total>2</span></h3>
+          <p>서로의 생각을 존중하며 이야기를 나눠주세요.</p>
+        </div>
+        <span class="comments-preview-badge">DESIGN PREVIEW</span>
       </div>
-      <div class="comments-thread"></div>
+      <form class="comment-form" data-comment-form>
+        <label class="comment-field">
+          <span>이름 또는 별명</span>
+          <input type="text" name="author" maxlength="24" autocomplete="nickname" placeholder="어떻게 불러드릴까요?" required>
+        </label>
+        <label class="comment-field">
+          <span>댓글</span>
+          <textarea name="comment" rows="5" maxlength="500" placeholder="읽고 떠오른 생각을 자유롭게 남겨보세요." required></textarea>
+        </label>
+        <div class="comment-form-footer">
+          <span class="comment-count" data-comment-count>0 / 500</span>
+          <button class="comment-submit" type="submit">댓글 남기기</button>
+        </div>
+        <p class="comment-form-note">현재는 디자인 확인용입니다. 작성한 댓글은 저장되지 않으며 새로고침하면 사라집니다.</p>
+        <p class="comment-form-message" aria-live="polite"></p>
+      </form>
+      <ol class="comment-list" data-comment-list>
+        <li class="comment-item">
+          <article>
+            <header class="comment-meta">
+              <span class="comment-avatar" aria-hidden="true">ㅈ</span>
+              <div><strong>조용한 독자</strong><time datetime="2026-10-25">오늘</time></div>
+            </header>
+            <p>같은 장면을 보고도 서로 다른 감상을 발견할 수 있다는 점이 좋았어요. 다음 장도 천천히 읽어보려 합니다.</p>
+            <button type="button" class="comment-reply" disabled>답글</button>
+          </article>
+        </li>
+        <li class="comment-item">
+          <article>
+            <header class="comment-meta">
+              <span class="comment-avatar comment-avatar--warm" aria-hidden="true">ㅇ</span>
+              <div><strong>오후의 기록</strong><time datetime="2026-10-24">어제</time></div>
+            </header>
+            <p>읽는 동안 오래 머물렀던 문장을 다시 생각하게 되네요. 잘 보고 갑니다.</p>
+            <button type="button" class="comment-reply" disabled>답글</button>
+          </article>
+        </li>
+      </ol>
     </div>
   `;
   frame.insertAdjacentElement('afterend', community);
@@ -73,13 +113,50 @@
     }
   });
 
-  const commentsScript = document.createElement('script');
-  commentsScript.src = 'https://utteranc.es/client.js';
-  commentsScript.async = true;
-  commentsScript.crossOrigin = 'anonymous';
-  commentsScript.setAttribute('repo', 'mango040730/UIUX');
-  commentsScript.setAttribute('issue-term', 'pathname');
-  commentsScript.setAttribute('theme', 'github-light');
-  commentsScript.setAttribute('label', 'comments');
-  community.querySelector('.comments-thread').appendChild(commentsScript);
+  const commentForm = community.querySelector('[data-comment-form]');
+  const commentText = commentForm.elements.comment;
+  const commentCount = community.querySelector('[data-comment-count]');
+  const commentList = community.querySelector('[data-comment-list]');
+  const commentTotal = community.querySelector('[data-comment-total]');
+  const formMessage = community.querySelector('.comment-form-message');
+
+  commentText.addEventListener('input', () => {
+    commentCount.textContent = `${commentText.value.length} / 500`;
+  });
+
+  commentForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!commentForm.reportValidity()) return;
+
+    const author = commentForm.elements.author.value.trim();
+    const comment = commentText.value.trim();
+    if (!author || !comment) {
+      formMessage.textContent = '이름과 댓글 내용을 입력해주세요.';
+      return;
+    }
+
+    const item = document.createElement('li');
+    item.className = 'comment-item comment-item--preview';
+    item.innerHTML = `
+      <article>
+        <header class="comment-meta">
+          <span class="comment-avatar" aria-hidden="true"></span>
+          <div><strong></strong><time>방금 전 · 미리보기</time></div>
+        </header>
+        <p></p>
+        <button type="button" class="comment-reply" disabled>답글</button>
+      </article>
+    `;
+    item.querySelector('.comment-avatar').textContent = author.slice(0, 1);
+    item.querySelector('strong').textContent = author;
+    item.querySelector('article > p').textContent = comment;
+    commentList.prepend(item);
+    commentTotal.textContent = String(commentList.children.length);
+    commentForm.reset();
+    commentCount.textContent = '0 / 500';
+    formMessage.textContent = '미리보기 댓글을 추가했습니다. 새로고침하면 사라집니다.';
+    window.setTimeout(() => {
+      formMessage.textContent = '';
+    }, 3200);
+  });
 })();
