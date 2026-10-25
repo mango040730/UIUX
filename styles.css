@@ -44,7 +44,6 @@ a:focus-visible { outline: 2px solid #da5842; outline-offset: 6px; }
   font-weight: 600;
   letter-spacing: -2.5px;
 }
-.about-link { font-size: 13px; font-weight: 500; padding-top: 8px; }
 .introduction {
   position: absolute;
   top: clamp(54px, 6vw, 78px);
@@ -192,37 +191,6 @@ h1 {
   left: 50%;
   translate: -50% 0;
 }
-.title-high { top: 6%; }
-.title-mid { top: 23%; }
-.title-small { font-size: 12px; letter-spacing: -.015em; font-weight: 500; }
-.title-medium { font-size: 16px; }
-.title-bold {
-  font-size: 32px;
-  letter-spacing: .18em;
-  font-weight: 800;
-  top: 8%;
-}
-.title-outlined { color: #ffd7d1; }
-.spine-caption {
-  position: absolute;
-  writing-mode: vertical-rl;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.05;
-  letter-spacing: -.08em;
-  white-space: nowrap;
-}
-.caption-low { left: 26%; bottom: 24px; }
-.spine-topline { position: absolute; top: 21px; left: 9px; font-size: 9px; font-weight: 800; line-height: .92; }
-.small-vertical { font-size: 11px; left: 15px; font-weight: 900; }
-.oversized {
-  top: auto;
-  bottom: 25px;
-  font-size: 48px;
-  font-weight: 900;
-  letter-spacing: -.08em;
-  writing-mode: vertical-rl;
-}
 .book--pink-soft { --spine-bg: linear-gradient(90deg,#f8a0c8 0%,#f891bc 88%,#e17ba9 100%); --cover-bg:#f49bc3; }
 .book--forest { --spine-bg: linear-gradient(90deg,#1a6845,#1e563e); --cover-bg:#1b6042; --spine-ink: #d4c6ab; }
 .book--orange { --spine-bg: #e65326; --cover-bg:#e65326; --spine-ink: #f6cbca; }
@@ -267,7 +235,7 @@ h1 {
   border-right: 1px solid rgba(0,0,0,.12);
   box-shadow: inset -15px 0 20px rgba(0,0,0,.08), inset 4px 0 5px rgba(255,255,255,.06);
 }
-.book-front:not(.book-front--featured)::before {
+.book-front::before {
   content: attr(data-cover-title);
   position: absolute;
   top: 12%;
@@ -279,7 +247,7 @@ h1 {
   letter-spacing: -.065em;
   overflow-wrap: anywhere;
 }
-.book-front:not(.book-front--featured)::after {
+.book-front::after {
   content: "강김원 — " attr(data-cover-index) "\A THE PERSONAL CURATION";
   position: absolute;
   right: 22px;
@@ -294,43 +262,24 @@ h1 {
   white-space: pre;
   opacity: .7;
 }
-.book:nth-child(3n + 2) .book-front:not(.book-front--featured)::before {
+.book:nth-child(3n + 2) .book-front::before {
   top: 50%;
   translate: 0 -50%;
   text-align: center;
 }
-.book:nth-child(3n) .book-front:not(.book-front--featured)::before {
+.book:nth-child(3n) .book-front::before {
   top: auto;
   bottom: 19%;
   font-size: clamp(30px, 2.7vw, 43px);
   font-weight: 800;
   text-transform: uppercase;
 }
-.book-front--featured {
-  background: linear-gradient(120deg,#26445c 0%,#1c3045 70%,#1b283d 100%);
-  color: #c5c9c8;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-}
-.cover-heading { font-size: 13px; font-weight: 500; opacity:.58; letter-spacing: -.045em; margin: 3px 0 auto; }
-.cover-picture {
-  display: block;
-  width: 70%;
-  aspect-ratio: 0.72;
-  padding: 5px;
-  background: #bec2c4;
-  box-shadow: 0 0 0 4px rgba(11,19,22,.12);
-}
-.cover-picture img { display:block; width: 100%;height:100%;object-fit:cover; }
-.cover-edition { margin: auto 0 2px; font-size: 7px; opacity:.6; letter-spacing:.12em; text-align:center; }
 .sr-only { position:absolute; height:1px;width:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap; }
 @media (max-width: 800px) {
   :root { --page-gutter: 12px; }
   .site-frame { min-height: 760px; }
   .site-header { padding: 18px; }
   .wordmark { font-size: 23px; }
-  .about-link { font-size: 12px; }
   .introduction { top: 58px; }
   h1 { font-size: clamp(38px, 7.5vw, 64px); margin-top: 33px; letter-spacing: -.055em; }
   .library { top: 230px; height: auto; }
